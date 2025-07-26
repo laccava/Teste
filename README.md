@@ -1,1 +1,310 @@
-# Teste
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ANIVERSÁRIO DA LUÍSA</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #fff0f5;
+            margin: 0;
+            padding: 0;
+            color: #333;
+        }
+        
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        h1 {
+            color: #d63384;
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+        
+        .section {
+            background-color: white;
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 30px;
+            box-shadow: 0 5px 15px rgba(214, 51, 132, 0.1);
+        }
+        
+        .guest-section, .admin-section {
+            display: none;
+        }
+        
+        .active {
+            display: block;
+        }
+        
+        .tab-buttons {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
+        
+        .tab-btn {
+            background-color: #f8bbd0;
+            border: none;
+            padding: 10px 20px;
+            margin: 0 10px;
+            border-radius: 50px;
+            cursor: pointer;
+            font-weight: bold;
+            color: #d63384;
+            transition: all 0.3s;
+        }
+        
+        .tab-btn:hover {
+            background-color: #f48fb1;
+            color: white;
+        }
+        
+        .tab-btn.active {
+            background-color: #d63384;
+            color: white;
+        }
+        
+        form {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .family-member {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+        
+        input {
+            padding: 10px;
+            border: 1px solid #f8bbd0;
+            border-radius: 5px;
+            flex: 1;
+        }
+        
+        button {
+            background-color: #d63384;
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 50px;
+            cursor: pointer;
+            font-weight: bold;
+            margin-top: 15px;
+            transition: background-color 0.3s;
+        }
+        
+        button:hover {
+            background-color: #ad1457;
+        }
+        
+        .add-member {
+            background-color: #f8bbd0;
+            color: #d63384;
+            margin-top: 5px;
+        }
+        
+        .add-member:hover {
+            background-color: #f48fb1;
+        }
+        
+        .password-input {
+            margin-bottom: 20px;
+        }
+        
+        .confirmation-list {
+            list-style-type: none;
+            padding: 0;
+        }
+        
+        .confirmation-list li {
+            padding: 10px;
+            border-bottom: 1px solid #f8bbd0;
+        }
+        
+        .like-btn {
+            display: block;
+            width: 100%;
+            text-align: center;
+            background-color: #ff4081;
+            margin-top: 30px;
+        }
+        
+        .like-btn:hover {
+            background-color: #f50057;
+        }
+        
+        .admin-message {
+            color: #d63384;
+            font-weight: bold;
+            text-align: center;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>ANIVERSÁRIO DA LUÍSA</h1>
+            <p>Confirme sua presença para nossa festa especial!</p>
+        </header>
+        
+        <div class="tab-buttons">
+            <button class="tab-btn active" onclick="openSection('guest')">Área dos Convidados</button>
+            <button class="tab-btn" onclick="openSection('admin')">Área Administrativa</button>
+        </div>
+        
+        <div id="guest-section" class="section guest-section active">
+            <h2>Confirmação de Presença</h2>
+            <p>Por favor, preencha os nomes e idades de todos os membros da família que irão ao aniversário:</p>
+            
+            <form id="confirmation-form">
+                <div id="family-members">
+                    <div class="family-member">
+                        <input type="text" placeholder="Nome" required>
+                        <input type="number" placeholder="Idade" min="0" required>
+                    </div>
+                </div>
+                
+                <button type="button" class="add-member" onclick="addFamilyMember()">+ Adicionar outro membro</button>
+                <button type="submit">Confirmar Presença</button>
+            </form>
+            
+            <button class="like-btn" onclick="alert('Obrigada pelo carinho! Não esqueça de confirmar sua presença!')">Gostou do convite da Luiza? Venha garantir o seu!</button>
+        </div>
+        
+        <div id="admin-section" class="section admin-section">
+            <h2>Área Administrativa</h2>
+            <div id="password-screen">
+                <p>Por favor, insira a senha para acessar:</p>
+                <input type="password" id="admin-password" class="password-input" placeholder="Senha">
+                <button onclick="checkPassword()">Acessar</button>
+                <p id="password-error" style="color: red; display: none;">Senha incorreta. Tente novamente.</p>
+            </div>
+            
+            <div id="admin-content" style="display: none;">
+                <h3>Lista de Confirmações</h3>
+                <ul id="confirmation-list" class="confirmation-list">
+                    <!-- As confirmações serão exibidas aqui -->
+                </ul>
+                <p class="admin-message">Total de confirmados: <span id="total-confirmed">0</span> pessoas</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Armazenamento simples (em um caso real, você usaria um banco de dados)
+        let confirmations = JSON.parse(localStorage.getItem('luisa-party-confirmations')) || [];
+        
+        function openSection(section) {
+            document.querySelectorAll('.section').forEach(sec => {
+                sec.classList.remove('active');
+            });
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            
+            document.getElementById(`${section}-section`).classList.add('active');
+            event.target.classList.add('active');
+        }
+        
+        function addFamilyMember() {
+            const membersContainer = document.getElementById('family-members');
+            const newMember = document.createElement('div');
+            newMember.className = 'family-member';
+            newMember.innerHTML = `
+                <input type="text" placeholder="Nome" required>
+                <input type="number" placeholder="Idade" min="0" required>
+            `;
+            membersContainer.appendChild(newMember);
+        }
+        
+        document.getElementById('confirmation-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const members = [];
+            const inputs = document.querySelectorAll('#family-members .family-member');
+            
+            inputs.forEach(member => {
+                const name = member.querySelector('input[type="text"]').value;
+                const age = member.querySelector('input[type="number"]').value;
+                members.push({ name, age });
+            });
+            
+            // Adiciona à lista de confirmações
+            confirmations.push({
+                family: members,
+                date: new Date().toLocaleString()
+            });
+            
+            // Salva no localStorage
+            localStorage.setItem('luisa-party-confirmations', JSON.stringify(confirmations));
+            
+            alert('Presença confirmada com sucesso! Obrigada e até lá!');
+            this.reset();
+            
+            // Mantém apenas o primeiro membro
+            const membersContainer = document.getElementById('family-members');
+            while (membersContainer.children.length > 1) {
+                membersContainer.removeChild(membersContainer.lastChild);
+            }
+        });
+        
+        function checkPassword() {
+            const password = document.getElementById('admin-password').value;
+            const errorElement = document.getElementById('password-error');
+            
+            if (password === 'bemi2311') {
+                document.getElementById('password-screen').style.display = 'none';
+                document.getElementById('admin-content').style.display = 'block';
+                
+                // Carrega as confirmações
+                loadConfirmations();
+            } else {
+                errorElement.style.display = 'block';
+            }
+        }
+        
+        function loadConfirmations() {
+            const listElement = document.getElementById('confirmation-list');
+            listElement.innerHTML = '';
+            
+            let totalPeople = 0;
+            
+            confirmations.forEach((confirmation, index) => {
+                const li = document.createElement('li');
+                let familyText = `Família ${index + 1}: `;
+                
+                confirmation.family.forEach(member => {
+                    familyText += `${member.name} (${member.age} anos), `;
+                    totalPeople++;
+                });
+                
+                familyText = familyText.slice(0, -2); // Remove a última vírgula
+                familyText += ` - Confirmado em: ${confirmation.date}`;
+                
+                li.textContent = familyText;
+                listElement.appendChild(li);
+            });
+            
+            document.getElementById('total-confirmed').textContent = totalPeople;
+            
+            if (confirmations.length === 0) {
+                const li = document.createElement('li');
+                li.textContent = 'Nenhuma confirmação ainda.';
+                listElement.appendChild(li);
+            }
+        }
+    </script>
+</body>
+</html>
